@@ -1,0 +1,5 @@
+# In your repo root, create/edit .gitignore
+*.db
+*.sqlite
+*.sqlite-journal  # Temporary lock files
+/data/  # If using a data dir
