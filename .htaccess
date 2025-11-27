@@ -7,4 +7,5 @@ ServerSignature Off
 Options -Indexes
 Header always set X-Content-Type-Options nosniff
 Header always set X-Frame-Options DENY
+Header set Connection keep-alive
 Header always set Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'"
