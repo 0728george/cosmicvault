@@ -50,3 +50,5 @@ export function SearchBar({ onSearch, placeholder = "Search books, authors...", 
     </form>
   );
 }
+
+export default SearchBar

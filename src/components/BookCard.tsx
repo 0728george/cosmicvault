@@ -1,81 +1,75 @@
-import { Book } from '@/data/books';
-import { cn } from '@/lib/utils';
-import { FileText, BookOpen } from 'lucide-react';
-import { Link } from 'react-router-dom';
+// src/components/BookCard.tsx
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { BookOpen } from 'lucide-react'
 
 interface BookCardProps {
-  book: Book;
-  view: 'grid' | 'list';
+  book: any
+  view?: 'grid' | 'list'
 }
 
-export function BookCard({ book, view }: BookCardProps) {
+export default function BookCard({ book, view = 'grid' }: BookCardProps) {
+  // Grid view = compact card (default)
   if (view === 'list') {
     return (
-      <Link
-        to={`/book/${book.id}`}
-        className="flex gap-4 p-4 bg-card rounded-xl border border-border card-glow transition-all hover:border-primary/30 group"
-      >
-        <img
-          src={book.coverUrl}
-          alt={book.title}
-          className="w-20 h-28 object-cover rounded-lg flex-shrink-0"
-        />
-        <div className="flex-1 min-w-0">
-          <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors truncate">
-            {book.title}
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">{book.author}</p>
-          <p className="text-sm text-muted-foreground/70 mt-2 line-clamp-2">{book.description}</p>
-          <div className="flex items-center gap-4 mt-3">
-            <span className="text-xs text-muted-foreground">{book.year > 0 ? book.year : `${Math.abs(book.year)} BC`}</span>
-            <span className="text-xs text-muted-foreground">{book.pages} pages</span>
-            <span className={cn(
-              "text-xs px-2 py-0.5 rounded-full uppercase font-medium",
-              book.format === 'pdf' 
-                ? "bg-destructive/20 text-destructive" 
-                : "bg-primary/20 text-primary"
-            )}>
-              {book.format}
-            </span>
+      <Link to={`/book/${book.id}`}>
+        <div className="flex gap-6 p-6 rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-purple-500/50 transition">
+          <img
+            src={book.cover || '/placeholder.svg'}
+            alt={book.title}
+            className="w-24 h-36 object-cover rounded-lg flex-shrink-0"
+          />
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-white hover:text-purple-300 transition">
+              {book.title}
+            </h3>
+            <p className="text-gray-400 mt-1">{book.author}</p>
+            <p className="text-sm text-gray-500 mt-3 line-clamp-2">{book.description}</p>
+            <div className="flex items-center gap-2 mt-4 text-xs text-purple-300">
+              <BookOpen className="h-4 w-4" />
+              <span>{book.pages || '—'} pages • {book.format || 'PDF'}</span>
+            </div>
           </div>
         </div>
       </Link>
-    );
+    )
   }
 
+  // GRID VIEW — perfect size, never too big
   return (
-    <Link
-      to={`/book/${book.id}`}
-      className="group flex flex-col bg-card rounded-xl border border-border overflow-hidden card-glow transition-all hover:border-primary/30"
+    <motion.div
+      whileHover={{ y: -10, scale: 1.05 }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      className="group"
     >
-      <div className="relative aspect-[3/4] overflow-hidden">
-        <img
-          src={book.coverUrl}
-          alt={book.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-          <span className={cn(
-            "text-xs px-2 py-1 rounded-full uppercase font-medium inline-flex items-center gap-1",
-            book.format === 'pdf' 
-              ? "bg-destructive/80 text-destructive-foreground" 
-              : "bg-primary/80 text-primary-foreground"
-          )}>
-            {book.format === 'pdf' ? <FileText className="w-3 h-3" /> : <BookOpen className="w-3 h-3" />}
-            {book.format}
-          </span>
+      <Link to={`/book/${book.id}`}>
+        <div className="relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
+          {/* Fixed max size — this is the magic line */}
+          <div className="aspect-[3/4] w-full max-w-[220px] mx-auto">
+            <img
+              src={book.cover || '/placeholder.svg'}
+              alt={book.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+          </div>
+
+          <div className="p-5">
+            <h3 className="font-bold text-white line-clamp-2 leading-tight group-hover:text-purple-300 transition">
+              {book.title}
+            </h3>
+            <p className="text-sm text-gray-400 mt-1">{book.author}</p>
+            <div className="flex items-center gap-2 mt-4 text-xs text-purple-300">
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>{book.pages || '—'} pages</span>
+            </div>
+          </div>
+
+          {/* Glow on hover */}
+          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600/30 to-pink-600/30 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition duration-700 -z-10" />
         </div>
-      </div>
-      <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-display font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 text-sm">
-          {book.title}
-        </h3>
-        <p className="text-xs text-muted-foreground mt-1 truncate">{book.author}</p>
-        <p className="text-xs text-muted-foreground/70 mt-auto pt-2">
-          {book.year > 0 ? book.year : `${Math.abs(book.year)} BC`}
-        </p>
-      </div>
-    </Link>
-  );
+      </Link>
+    </motion.div>
+  )
 }

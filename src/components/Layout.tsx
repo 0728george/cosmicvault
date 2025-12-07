@@ -1,18 +1,16 @@
-import { Navbar } from './Navbar';
-import { Footer } from './Footer';
+import { Navbar } from './Navbar'
+import { Footer } from './Footer'
+import { Toaster } from '@/components/ui/sonner'
 
-interface LayoutProps {
-  children: React.ReactNode;
-}
-
-export function Layout({ children }: LayoutProps) {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col starfield">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-16">
-        {children}
-      </main>
+      <main className="flex-1">{children}</main>
       <Footer />
+      <Toaster position="bottom-right" richColors closeButton />
     </div>
-  );
+  )
 }
+
+export default Layout

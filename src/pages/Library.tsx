@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { SearchBar } from '@/components/SearchBar';
-import { BookCard } from '@/components/BookCard';
+import BookCard from '@/components/BookCard'
 import { ViewToggle } from '@/components/ViewToggle';
 import { books, categories, sortOptions } from '@/data/books';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -29,39 +29,34 @@ const Library = () => {
   const filteredAndSortedBooks = useMemo(() => {
     let result = [...books];
 
-    // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      const q = searchQuery.toLowerCase();
       result = result.filter(
         (book) =>
-          book.title.toLowerCase().includes(query) ||
-          book.author.toLowerCase().includes(query) ||
-          book.description.toLowerCase().includes(query)
+          book.title.toLowerCase().includes(q) ||
+          book.author.toLowerCase().includes(q) ||
+          book.description?.toLowerCase().includes(q)
       );
     }
 
-    // Filter by category
     if (selectedCategory && selectedCategory !== 'all') {
       result = result.filter((book) => book.category === selectedCategory);
     }
 
-    // Filter by format
     if (selectedFormat && selectedFormat !== 'all') {
       result = result.filter((book) => book.format === selectedFormat);
     }
 
-    // Sort
-    const [sortField, sortOrder] = sortBy.split('-');
+    const [field, order] = sortBy.split('-');
     result.sort((a, b) => {
-      let comparison = 0;
-      if (sortField === 'title') {
-        comparison = a.title.localeCompare(b.title);
-      } else if (sortField === 'author') {
-        comparison = a.author.localeCompare(b.author);
-      } else if (sortField === 'year') {
-        comparison = a.year - b.year;
-      }
-      return sortOrder === 'desc' ? -comparison : comparison;
+      let valA, valB;
+      if (field === 'title') { valA = a.title; valB = b.title; }
+      else if (field === 'author') { valA = a.author; valB = b.author; }
+      else if (field === 'year') { valA = a.year; valB = b.year; }
+      else { valA = a.title; valB = b.title; }
+
+      const comparison = valA > valB ? 1 : valA < valB ? -1 : 0;
+      return order === 'desc' ? -comparison : comparison;
     });
 
     return result;
@@ -69,117 +64,79 @@ const Library = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-screen-2xl">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-            Library
+        <div className="mb-10 text-center">
+          <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Cosmic Library
           </h1>
-          <p className="text-muted-foreground">
-            Browse our collection of {books.length.toLocaleString()}+ public domain books
+          <p className="mt-4 text-xl text-gray-300">
+            {books.length.toLocaleString()}+ eternal books • fully open access
           </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col gap-4 mb-8">
+        {/* Search & Filters */}
+        <div className="flex flex-col gap-6 mb-10">
           <SearchBar
             onSearch={handleSearch}
-            placeholder="Search by title, author, or keyword..."
-            className="max-w-2xl"
+            placeholder="Search titles, authors, keywords..."
+            className="max-w-2xl mx-auto"
           />
 
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Category Filter */}
+          <div className="flex flex-wrap items-center justify-center gap-4">
             <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-[180px] bg-card border-border">
+              <SelectTrigger className="w-48 bg-white/5 backdrop-blur border-white/10">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.icon} {category.name}
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.icon} {cat.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            {/* Format Filter */}
             <Select value={selectedFormat} onValueChange={setSelectedFormat}>
-              <SelectTrigger className="w-[140px] bg-card border-border">
-                <SelectValue placeholder="Format" />
+              <SelectTrigger className="w-40 bg-white/5 backdrop-blur border-white/10">
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
+              <SelectContent>
                 <SelectItem value="all">All Formats</SelectItem>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="epub">EPUB</SelectItem>
               </SelectContent>
             </Select>
 
-            {/* Sort */}
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[160px] bg-card border-border">
-                <SelectValue placeholder="Sort by" />
+              <SelectTrigger className="w-44 bg-white/5 backdrop-blur border-white/10">
+                <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-border">
-                {sortOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
+              <SelectContent>
+                {sortOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
 
-            <div className="ml-auto">
-              <ViewToggle view={view} onViewChange={setView} />
-            </div>
+            <ViewToggle view={view} onViewChange={setView} className="ml-auto" />
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex flex-wrap gap-2 mb-8 overflow-x-auto pb-2">
-          <button
-            onClick={() => handleCategoryChange('all')}
-            className={cn(
-              "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
-              selectedCategory === 'all'
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
-            )}
-          >
-            All
-          </button>
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryChange(category.id)}
-              className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
-                selectedCategory === category.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
-              )}
-            >
-              {category.icon} {category.name}
-            </button>
-          ))}
+        {/* Results Counter */}
+        <div className="text-center text-gray-400 mb-8">
+          Showing <span className="text-purple-300 font-bold">{filteredAndSortedBooks.length}</span> results
         </div>
 
-        {/* Results */}
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            Showing {filteredAndSortedBooks.length} results
-            {searchQuery && ` for "${searchQuery}"`}
-          </p>
-        </div>
-
-        {/* Books Grid/List */}
+        {/* BOOKS GRID – THIS IS THE KEY FIX */}
         {filteredAndSortedBooks.length > 0 ? (
           <div
             className={cn(
+              "grid gap-6 auto-rows-min",
               view === 'grid'
-                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
-                : "flex flex-col gap-4"
+                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+                : "grid-cols-1"
             )}
           >
             {filteredAndSortedBooks.map((book) => (
@@ -187,17 +144,17 @@ const Library = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground text-lg">No books found matching your criteria.</p>
+          <div className="text-center py-32">
+            <p className="text-2xl text-gray-500">No books found</p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
                 setSelectedFormat('all');
               }}
-              className="text-primary hover:underline mt-2"
+              className="mt-4 text-purple-400 hover:underline"
             >
-              Clear filters
+              Clear all filters
             </button>
           </div>
         )}

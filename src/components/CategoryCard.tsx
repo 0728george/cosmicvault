@@ -24,3 +24,5 @@ export function CategoryCard({ category }: CategoryCardProps) {
     </Link>
   );
 }
+
+export default CategoryCard
